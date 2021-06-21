@@ -44,6 +44,7 @@ module.exports = {
 				'address',
 				'school',
 				'level',
+				'integral',
 			]);
 			if (result.birthday) result.birthday = moment(result.birthday).format('YYYY-MM-DD');
 			result.photo = userUtil.getPhotoUrl(result.photo);

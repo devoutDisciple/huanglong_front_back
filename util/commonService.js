@@ -178,7 +178,7 @@ module.exports = {
 		obj.topic_names = obj.topic_names ? JSON.parse(obj.topic_names) : [];
 		obj.create_time = obj.create_time ? moment(obj.create_time).format(timeformat) : '';
 		if (obj.userDetail) {
-			obj.userDetail = responseUtil.renderFieldsObj(obj.userDetail, ['id', 'photo', 'school', 'username']);
+			obj.userDetail = responseUtil.renderFieldsObj(obj.userDetail, ['id', 'photo', 'school', 'username', 'integral']);
 			if (obj.userDetail.photo) obj.userDetail.photo = userUtil.getPhotoUrl(obj.userDetail.photo);
 		}
 		if (user_id && obj.userDetail && obj.userDetail.id) {

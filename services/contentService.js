@@ -13,6 +13,7 @@ const userAttentionUserModal = userAttentionUser(sequelize);
 const userAttentionCircleModal = userAttentionCircle(sequelize);
 const userModal = user(sequelize);
 contentModal.belongsTo(userModal, { foreignKey: 'user_id', targetKey: 'id', as: 'userDetail' });
+const COMMONE_USER_FIELDS = ['id', 'photo', 'school', 'username', 'integral'];
 
 const pagesize = 10;
 
@@ -51,7 +52,7 @@ module.exports = {
 					{
 						model: userModal,
 						as: 'userDetail',
-						attributes: ['id', 'username', 'photo', 'school'],
+						attributes: COMMONE_USER_FIELDS,
 					},
 				],
 				order: [['create_time', 'DESC']],
@@ -99,7 +100,7 @@ module.exports = {
 					{
 						model: userModal,
 						as: 'userDetail',
-						attributes: ['id', 'username', 'photo', 'school'],
+						attributes: COMMONE_USER_FIELDS,
 					},
 				],
 				order: [['create_time', 'DESC']],
@@ -121,7 +122,7 @@ module.exports = {
 			const { user_id, current = 1 } = req.query;
 			const offset = Number((current - 1) * pagesize);
 			if (!user_id) return res.send(resultMessage.error('请先登录'));
-			const userDetail = await userModal.findOne({ where: { id: user_id }, attributes: ['id', 'photo', 'school', 'username'] });
+			const userDetail = await userModal.findOne({ where: { id: user_id }, attributes: COMMONE_USER_FIELDS });
 			const contentList = await contentModal.findAll({
 				where: {
 					user_id,
@@ -137,7 +138,7 @@ module.exports = {
 				let len = contentList.length;
 				while (len > 0) {
 					len -= 1;
-					contentList[len].userDetail = responseUtil.renderFieldsObj(userDetail, ['id', 'photo', 'school', 'username']);
+					contentList[len].userDetail = responseUtil.renderFieldsObj(userDetail, COMMONE_USER_FIELDS);
 					const obj = responseUtil.renderFieldsObj(contentList[len], [...contentCommonFields, 'userDetail']);
 					const content_id = contentList[len].id;
 					// 添加帖子或者pk的详情
@@ -177,7 +178,7 @@ module.exports = {
 					break;
 			}
 			if (!user_id) return res.send(resultMessage.error('请先登录'));
-			const userDetail = await userModal.findOne({ where: { id: user_id }, attributes: ['id', 'photo', 'school', 'username'] });
+			const userDetail = await userModal.findOne({ where: { id: user_id }, attributes: COMMONE_USER_FIELDS });
 			const contentList = await contentModal.findAll({
 				where: {
 					user_id,
@@ -194,7 +195,7 @@ module.exports = {
 				let len = contentList.length;
 				while (len > 0) {
 					len -= 1;
-					contentList[len].userDetail = responseUtil.renderFieldsObj(userDetail, ['id', 'photo', 'school', 'username']);
+					contentList[len].userDetail = responseUtil.renderFieldsObj(userDetail, COMMONE_USER_FIELDS);
 					const obj = responseUtil.renderFieldsObj(contentList[len], [...contentCommonFields, 'userDetail']);
 					const content_id = contentList[len].id;
 					// 查看帖子或者pk的详情
@@ -264,7 +265,7 @@ module.exports = {
 					{
 						model: userModal,
 						as: 'userDetail',
-						attributes: ['id', 'username', 'photo', 'school'],
+						attributes: COMMONE_USER_FIELDS,
 					},
 				],
 				order: [['create_time', 'DESC']],
@@ -317,7 +318,7 @@ module.exports = {
 			const str1 =
 				'SELECT content.id, content.user_id, content.circle_ids, content.circle_names, content.topic_ids, content.topic_names, content.other_id, content.type, content.goods, content.comment, content.share, content.create_time, ';
 			const str2 =
-				"userDetail.id AS 'user_detail_id', userDetail.username AS 'user_detail_username', userDetail.photo AS 'user_detail_photo',userDetail.school AS 'user_detail_school' ";
+				"userDetail.id AS 'user_detail_id', userDetail.username AS 'user_detail_username', userDetail.photo AS 'user_detail_photo', userDetail.integral AS 'user_detail_integral', userDetail.school AS 'user_detail_school' ";
 			const str3 = 'FROM content  LEFT OUTER JOIN user AS userDetail ON content.user_id = userDetail.id ';
 			let str4 = `WHERE content.is_delete = 1 `;
 			if (attentionUsersId && attentionUsersId.length !== 0) {
@@ -351,6 +352,7 @@ module.exports = {
 							username: currItem.user_detail_username,
 							photo: currItem.user_detail_photo,
 							school: currItem.user_detail_school,
+							integral: currItem.user_detail_integral,
 						};
 					}
 					const obj = responseUtil.renderFieldsObj(currItem, [...contentCommonFields, 'userDetail']);

@@ -14,6 +14,7 @@ const userAttentionModal = userAttention(sequelize);
 viewRecordModal.belongsTo(userModal, { foreignKey: 'user_id', targetKey: 'id', as: 'userDetail' });
 const timeformat = 'YYYY-MM-DD HH:mm:ss';
 const pagesize = 10;
+const COMMONE_USER_FIELDS = ['id', 'username', 'photo', 'integral'];
 
 module.exports = {
 	// 新增浏览记录
@@ -71,7 +72,7 @@ module.exports = {
 					{
 						model: userModal,
 						as: 'userDetail',
-						attributes: ['id', 'username', 'photo'],
+						attributes: COMMONE_USER_FIELDS,
 					},
 				],
 				limit: pagesize,
@@ -82,7 +83,7 @@ module.exports = {
 				result.forEach((item) => {
 					item.create_time = moment(item.create_time).format(timeformat);
 					if (item.userDetail) {
-						item.userDetail = responseUtil.renderFieldsObj(item.userDetail, ['id', 'username', 'photo']);
+						item.userDetail = responseUtil.renderFieldsObj(item.userDetail, COMMONE_USER_FIELDS);
 						item.userDetail.photo = userUtil.getPhotoUrl(item.userDetail.photo);
 					}
 				});
@@ -111,7 +112,7 @@ module.exports = {
 					{
 						model: userModal,
 						as: 'userDetail',
-						attributes: ['id', 'username', 'photo'],
+						attributes: COMMONE_USER_FIELDS,
 					},
 				],
 				limit: pagesize,
@@ -134,7 +135,7 @@ module.exports = {
 					item.hadAttention = false;
 					item.create_time = moment(item.create_time).format('YYYY-MM-DD HH:mm');
 					if (item.userDetail) {
-						item.userDetail = responseUtil.renderFieldsObj(item.userDetail, ['id', 'username', 'photo']);
+						item.userDetail = responseUtil.renderFieldsObj(item.userDetail, COMMONE_USER_FIELDS);
 						item.userDetail.photo = userUtil.getPhotoUrl(item.userDetail.photo);
 					}
 					const attentionDetail = attentions.filter((tempItem) => tempItem.other_id === item.user_id);

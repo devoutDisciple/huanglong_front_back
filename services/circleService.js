@@ -302,9 +302,9 @@ module.exports = {
 	// 获取个人关注圈子以及热度
 	getMyAttentionCircles: async (req, res) => {
 		try {
-			const { user_id } = req.query;
+			const { user_id, num } = req.query;
 			const myCircles = [];
-			const myCir = await userAttentionCircleModal.findAll({
+			const condition = {
 				where: {
 					user_id,
 					is_delete: 1,
@@ -316,10 +316,13 @@ module.exports = {
 					},
 				],
 				order: [['create_time', 'DESC']],
-				limit: 6,
-				offset: Number(0),
 				attributes: ['id'],
-			});
+			};
+			if (num) {
+				condition.limit = Number(num);
+				condition.offset = 0;
+			}
+			const myCir = await userAttentionCircleModal.findAll(condition);
 			if (myCir) {
 				myCir.forEach((item) => {
 					myCircles.push({

@@ -71,10 +71,12 @@ controller(app);
 
 const httpsServer = https.createServer(credentials, app);
 
-// 启动服务器，监听对应的端口
-httpsServer.listen(443, () => {
-	console.log(chalk.yellow(`env: ${config.env}, server is listenning 443`));
-});
+if (config.env !== 'dev') {
+	// 启动服务器，监听对应的端口
+	httpsServer.listen(443, () => {
+		console.log(chalk.yellow(`env: ${config.env}, server is listenning 443`));
+	});
+}
 
 // 监听8888端口
 app.listen(config.port, () => {
