@@ -163,7 +163,7 @@ module.exports = {
 			switch (String(activeIdx)) {
 				// 获取文字
 				case '0':
-					type = [1, 2, 3, 4];
+					type = [1, 2, 3, 4, 6];
 					break;
 				// 获取视频
 				case '1':

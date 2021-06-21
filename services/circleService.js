@@ -343,12 +343,14 @@ module.exports = {
 	// 根据板块id获取圈子列表
 	getCirclesByPlateId: async (req, res) => {
 		try {
-			const { plate_id, user_id } = req.query;
+			const { plate_id, user_id, city } = req.query;
+			const where = {
+				plate_id,
+				is_delete: 1,
+			};
+			if (city && city !== 'all' && city !== 'undefined') where.city = city;
 			const myCir = await circleModal.findAll({
-				where: {
-					plate_id,
-					is_delete: 1,
-				},
+				where,
 				order: [['hot', 'DESC']],
 				attributes: ['id', 'name', 'hot', 'fellow', 'blogs', 'posts', 'battle', 'vote', 'videos', 'logo'],
 			});
@@ -497,6 +499,24 @@ module.exports = {
 					const curItem = responseUtil.renderFieldsObj(item.circleDetail, ['id', 'plate_id', 'name', 'hot', 'logo']);
 					curItem.logo = config.preUrl.circleUrl + curItem.logo;
 					result.push(curItem);
+				});
+			}
+			res.send(resultMessage.success(result));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
+		}
+	},
+
+	// 获取圈子的地区分类
+	getCircleAddressByCity: async (req, res) => {
+		try {
+			const statement = 'SELECT distinct(city) FROM circle WHERE circle.is_delete = 1 AND circle.type = 1;';
+			const addressList = await sequelize.query(statement, { type: sequelize.QueryTypes.SELECT });
+			const result = [];
+			if (addressList && addressList.length !== 0) {
+				addressList.forEach((item) => {
+					result.push(item);
 				});
 			}
 			res.send(resultMessage.success(result));
