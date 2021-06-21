@@ -1,8 +1,10 @@
 const moment = require('moment');
 const sizeOf = require('image-size');
+const fs = require('fs');
 const sequelize = require('../dataSource/MysqlPoolClass');
 const content = require('../models/content');
 const posts = require('../models/posts');
+const album = require('../models/album');
 const user = require('../models/user');
 const video = require('../models/video');
 const circle = require('../models/circle');
@@ -11,6 +13,7 @@ const resultMessage = require('../util/resultMessage');
 // const responseUtil = require('../util/responseUtil');
 
 const userModal = user(sequelize);
+const albumModal = album(sequelize);
 const postsModal = posts(sequelize);
 const videoModal = video(sequelize);
 const circleModal = circle(sequelize);
@@ -101,6 +104,31 @@ module.exports = {
 				update_time: moment().format(timeformat),
 			});
 			res.send(resultMessage.success('success'));
+			if (type === 6) {
+				const bluckList = [];
+				let len = imgUrls.length;
+				while (len > 0) {
+					len -= 1;
+					const curItem = imgUrls[len];
+					await fs.copyFileSync(`${config.postsPath}/${curItem.url}`, `${config.albumPath}/${curItem.url}`);
+					bluckList.push({
+						user_id,
+						url: JSON.stringify(curItem),
+						create_time: moment().format('YYYY-MM-DD HH:mm:ss'),
+					});
+				}
+				console.log(bluckList, 1232);
+				albumModal.bulkCreate(bluckList);
+				// imgUrls.forEach(async (item) => {
+				// 	await fs.copyFileSync(`${config.postsPath}/${item.url}`, `${config.albumPath}/${item.url}`);
+				// 	bluckList.push({
+				// 		user_id,
+				// 		url: item,
+				// 		create_time: moment().format('YYYY-MM-DD HH:mm:ss'),
+				// 	});
+				// });
+				// console.log(bluckList, 1232);
+			}
 			// 用户积分 + 2, 发布 + 1
 			userModal.increment({ integral: config.PUBLISH_POSTS_INTEGRAL, publish: 1 }, { where: { id: user_id } });
 			// 圈子热度 + 2

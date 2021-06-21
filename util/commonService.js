@@ -83,7 +83,7 @@ module.exports = {
 	// 处理内容返回的详情
 	handleContent: async (obj, user_id) => {
 		// post || blogs
-		if (obj.type === 1 || obj.type === 2) {
+		if (obj.type === 1 || obj.type === 2 || obj.type === 6) {
 			obj.postsDetail = await postsModal.findOne({
 				where: { id: obj.other_id },
 				attributes: ['id', 'title', 'desc', 'img_urls'],
