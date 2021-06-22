@@ -1,9 +1,11 @@
 const moment = require('moment');
+const sizeOf = require('image-size');
 const sequelize = require('../dataSource/MysqlPoolClass');
 const resultMessage = require('../util/resultMessage');
 const message = require('../models/message');
 const user = require('../models/user');
 const responseUtil = require('../util/responseUtil');
+const config = require('../config/config');
 
 const messageModal = message(sequelize);
 const userModal = user(sequelize);
@@ -14,13 +16,14 @@ module.exports = {
 	// 添加信息
 	addMsg: async (req, res) => {
 		try {
-			const { user_id, person_id, username, user_photo, content } = req.body;
+			const { user_id, person_id, username, user_photo, content, type } = req.body;
 			await messageModal.create({
 				user_id,
 				person_id,
 				username,
 				user_photo,
 				content,
+				type,
 				create_time: moment().format('YYYY-MM-DD HH:mm:ss'),
 			});
 			res.send(resultMessage.success('success'));
@@ -53,6 +56,7 @@ module.exports = {
 				'username',
 				'user_photo',
 				'content',
+				'type',
 				'create_time',
 			]);
 
@@ -63,6 +67,18 @@ module.exports = {
 				return res.send(resultMessage.success({ data: result }));
 			}
 			res.send(resultMessage.success('暂无消息'));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
+		}
+	},
+
+	// 上传图片
+	uploadImg: async (req, res, filename) => {
+		try {
+			const { width, height } = sizeOf(req.file.path);
+			const imgUrl = config.preUrl.msgUrl + filename;
+			res.send(resultMessage.success({ url: imgUrl, width, height }));
 		} catch (error) {
 			console.log(error);
 			res.send(resultMessage.error());

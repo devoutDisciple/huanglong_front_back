@@ -3,16 +3,13 @@ const path = require('path');
 
 const dealFile = (file) => {
 	let data = fs.readFileSync(file, { encoding: 'utf-8' });
-	data = data.replace(
-		'/* jshint indent: 2 */\n\nmodule.exports = function(sequelize, DataTypes) {',
-		"const Sequelize = require('sequelize');\n\nmodule.exports = (sequelize) => {",
-	);
+	data = data.replace('module.exports = function(sequelize, DataTypes) {', '\nmodule.exports = (sequelize) => {');
 	data = data.replace(/DataTypes/g, 'Sequelize');
-	data = data.replace(
-		'    id: {\n      type: Sequelize.INTEGER(11),\n      allowNull: false,\n      primaryKey: true\n    }',
-		'    id: {\n      type: Sequelize.INTEGER(11),\n      allowNull: false,\n      primaryKey: true,\n      autoIncrement: true\n    }',
-	);
-	data = data.replace('\n  });', ',\n    timestamps: false,\n    });');
+	// data = data.replace(
+	// 	'    id: {\n      type: Sequelize.INTEGER(11),\n      allowNull: false,\n      primaryKey: true\n    }',
+	// 	'    id: {\n      type: Sequelize.INTEGER(11),\n      allowNull: false,\n      primaryKey: true,\n      autoIncrement: true\n    }',
+	// );
+	// data = data.replace('\n  });', ',\n    timestamps: false,\n    });');
 	// fs.writeFileSync('test.js', data);
 	fs.writeFileSync(file, data);
 };
