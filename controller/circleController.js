@@ -68,9 +68,14 @@ router.get('/circleDetailByPlateId', (req, res) => {
 	circleService.getCircleDetailByPlateId(req, res);
 });
 
-// 获取学校圈子的地区 getCircleAddressByCity
+// 获取学校圈子的地区
 router.get('/circleAddressByCity', (req, res) => {
 	circleService.getCircleAddressByCity(req, res);
+});
+
+// 保存首页展示的圈子
+router.post('/saveMyShowCircle', (req, res) => {
+	circleService.saveMyShowCircle(req, res);
 });
 
 module.exports = router;

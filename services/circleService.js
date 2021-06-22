@@ -16,7 +16,7 @@ const plateModal = plate(sequelize);
 userAttentionCircleModal.belongsTo(circleModal, { foreignKey: 'circle_id', targetKey: 'id', as: 'circleDetail' });
 plateModal.hasMany(circleModal, { foreignKey: 'plate_id', targetKey: 'id', as: 'circles' });
 
-const INIT_CIRCLE_NUM = 5;
+const INIT_CIRCLE_NUM = 6;
 const timeformat = 'YYYY-MM-DD HH:mm:ss';
 
 module.exports = {
@@ -25,53 +25,36 @@ module.exports = {
 		try {
 			const { user_id } = req.query;
 			const myCircles = [];
-			if (user_id) {
-				const myCir = await userAttentionCircleModal.findAll({
-					where: {
-						user_id,
-						is_delete: 1,
+			if (!user_id) return myCircles;
+			const circles = await userAttentionCircleModal.findAll({
+				where: {
+					user_id,
+					type: 2,
+					is_delete: 1,
+				},
+				include: [
+					{
+						model: circleModal,
+						as: 'circleDetail',
+						attributes: ['id', 'name'],
 					},
-					include: [
-						{
-							model: circleModal,
-							as: 'circleDetail',
-							attributes: ['id', 'name'],
-						},
-					],
-					order: [['create_time', 'DESC']],
-					limit: Number(INIT_CIRCLE_NUM),
-					offset: Number(0),
-				});
-				if (myCir) {
-					myCir.forEach((item) => {
-						myCircles.push({ id: item.circleDetail.id, name: item.circleDetail.name });
+				],
+				attributes: ['id', 'self_school', 'type'],
+				order: [['create_time', 'DESC']],
+				limit: Number(INIT_CIRCLE_NUM),
+				offset: Number(0),
+			});
+			if (circles) {
+				circles.forEach((item) => {
+					myCircles.push({
+						id: item.circleDetail.id,
+						name: item.circleDetail.name,
+						type: item.type,
+						self_school: item.self_school,
 					});
-				}
+				});
 			}
-			const newCircles = myCircles || [];
-			// 关注的圈子少于5
-			// if (myCircles && myCircles.length < INIT_CIRCLE_NUM) {
-			// 	const circles = await circleModal.findAll({
-			// 		where: {
-			// 			is_delete: 1,
-			// 		},
-			// 		order: [['hot', 'DESC']],
-			// 		limit: Number(INIT_CIRCLE_NUM),
-			// 		offset: Number(0),
-			// 	});
-			// 	newCircles = [...myCircles, ...circles];
-			// 	newCircles = newCircles.slice(0, INIT_CIRCLE_NUM);
-			// 	// 将其设置为默认关注
-			// 	const attentionCircles = [];
-			// 	if (Array.isArray(circles)) {
-			// 		circles.forEach((item) => {
-			// 			attentionCircles.push({ user_id, circle_id: item.id, create_time: moment().format(timeformat) });
-			// 		});
-			// 	}
-			// 	await userAttentionCircleModal.bulkCreate(attentionCircles);
-			// }
-			const result = responseUtil.renderFieldsAll(newCircles, ['id', 'name']);
-			res.send(resultMessage.success(result));
+			res.send(resultMessage.success(myCircles));
 		} catch (error) {
 			console.log(error);
 			res.send(resultMessage.error());
@@ -136,6 +119,7 @@ module.exports = {
 				circle_id: result.id,
 				create_time: moment().format(timeformat),
 				self_school: 1,
+				type: 2, // 默认展示在首页
 			});
 			res.send(resultMessage.success('success'));
 		} catch (error) {
@@ -187,16 +171,16 @@ module.exports = {
 					},
 				],
 				order: [['create_time', 'DESC']],
-				limit: Number(INIT_CIRCLE_NUM),
-				offset: Number(0),
-				attributes: ['id', 'self_school'],
+				attributes: ['id', 'self_school', 'type'],
 			});
 			if (myCir) {
 				myCir.forEach((item) => {
 					myCircles.push({
 						id: item.circleDetail.id,
+						attention_id: item.id,
 						name: item.circleDetail.name,
 						self_school: item.self_school,
+						type: item.type,
 					});
 				});
 			}
@@ -516,10 +500,36 @@ module.exports = {
 			const result = [];
 			if (addressList && addressList.length !== 0) {
 				addressList.forEach((item) => {
-					result.push(item);
+					if (item.city) result.push(item);
 				});
 			}
 			res.send(resultMessage.success(result));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
+		}
+	},
+
+	// 保存首页展示的圈子
+	saveMyShowCircle: async (req, res) => {
+		try {
+			const { circles, user_id } = req.body;
+			const commoneFields = ['id', 'user_id', 'circle_id', 'create_time', 'self_school', 'type', 'is_delete'];
+			const myCircles = await userAttentionCircleModal.findAll({
+				where: { user_id },
+				attributes: commoneFields,
+			});
+			const newCircles = responseUtil.renderFieldsAll(myCircles, commoneFields);
+			if (Array.isArray(newCircles)) {
+				newCircles.forEach((item) => {
+					circles.forEach((cir) => {
+						if (item.circle_id === cir.id) item.type = cir.type;
+					});
+				});
+			}
+			await userAttentionCircleModal.destroy({ where: { user_id } });
+			await userAttentionCircleModal.bulkCreate(newCircles);
+			res.send(resultMessage.success('success'));
 		} catch (error) {
 			console.log(error);
 			res.send(resultMessage.error());
