@@ -51,4 +51,9 @@ router.get('/hadAttentionUser', (req, res) => {
 	userService.getHadAttentionUser(req, res);
 });
 
+// 获取积分排行前三名
+router.get('/mostIntegral', (req, res) => {
+	userService.getMostIntegral(req, res);
+});
+
 module.exports = router;

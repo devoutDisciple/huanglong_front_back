@@ -176,4 +176,28 @@ module.exports = {
 			res.send(resultMessage.error());
 		}
 	},
+
+	// 获取积分前三名
+	getMostIntegral: async (req, res) => {
+		try {
+			const users = await userModal.findAll({
+				where: { is_delete: 1 },
+				attributes: ['id', 'username', 'photo', 'integral'],
+				order: [
+					['integral', 'DESC'],
+					['create_time', 'DESC'],
+				],
+				limit: 3,
+				offset: 0,
+			});
+			const result = responseUtil.renderFieldsAll(users, ['id', 'username', 'photo', 'integral']);
+			result.forEach((item) => {
+				item.photo = userUtil.getPhotoUrl(item.photo);
+			});
+			res.send(resultMessage.success(result));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
+		}
+	},
 };

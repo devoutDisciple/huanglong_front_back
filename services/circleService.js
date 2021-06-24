@@ -371,7 +371,7 @@ module.exports = {
 		try {
 			const { circle_id, user_id } = req.body;
 			if (!circle_id) {
-				return res.send();
+				return res.send(resultMessage.error('请先登录'));
 			}
 			// 查看是否已经关注
 			const attentionDetail = await userAttentionCircleModal.findOne({
@@ -380,8 +380,10 @@ module.exports = {
 					circle_id,
 					is_delete: 1,
 				},
+				attributes: ['id', 'type', 'self_school'],
 			});
 			if (attentionDetail) {
+				if (Number(attentionDetail.self_school) === 1) return res.send(resultMessage.error('不可取消关注'));
 				userAttentionCircleModal.destroy({ where: { id: attentionDetail.id } });
 				// 圈子粉丝 - 1， 热度 - 2
 				circleModal.decrement({ fellow: 1, hot: config.USER_ATTENTION_CIRCLE }, { where: { id: circle_id } });
