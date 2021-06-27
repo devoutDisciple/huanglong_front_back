@@ -23,7 +23,7 @@ const upload = multer({ dest: config.userPhotoPath, storage });
 
 // 获取用户基本信息，通过userid
 router.get('/userDetailByUserId', (req, res) => {
-	userService.getUserByUserId(req, res);
+	userService.getUserDetailByUserId(req, res);
 });
 
 // 上传用户头像
@@ -54,6 +54,11 @@ router.get('/hadAttentionUser', (req, res) => {
 // 获取积分排行前三名
 router.get('/mostIntegral', (req, res) => {
 	userService.getMostIntegral(req, res);
+});
+
+// 更新用户身份
+router.post('/updateIdentity', (req, res) => {
+	userService.updateIdentity(req, res);
 });
 
 module.exports = router;

@@ -18,15 +18,17 @@ module.exports = (sequelize) => {
       allowNull: false,
       comment: "圈子id"
     },
-    create_time: {
-      type: Sequelize.DATE,
-      allowNull: true
-    },
     self_school: {
       type: Sequelize.INTEGER,
       allowNull: true,
       defaultValue: 2,
       comment: "1-是本校 2-其他"
+    },
+    sort: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: 1,
+      comment: "1"
     },
     type: {
       type: Sequelize.INTEGER,
@@ -34,9 +36,13 @@ module.exports = (sequelize) => {
       defaultValue: 1,
       comment: "1-普通关注 2-首页存在"
     },
+    create_time: {
+      type: Sequelize.DATE,
+      allowNull: true
+    },
     is_delete: {
       type: Sequelize.INTEGER,
-      allowNull: true,
+      allowNull: false,
       defaultValue: 1,
       comment: "1-存在 2-删除"
     }

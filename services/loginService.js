@@ -30,22 +30,22 @@ module.exports = {
 					if (!userDetail && avatarUrl && nickName) {
 						await userModal.create({
 							wx_openid: openid,
-							username: nickName,
-							photo: avatarUrl,
+							username: '',
+							photo: '',
 							create_time: moment().format('YYYY-MM-DD HH:mm:ss'),
 						});
 						userDetail = {
 							wx_openid: openid,
-							username: nickName,
-							photo: avatarUrl,
+							username: '',
+							photo: '',
 						};
 					}
 					// 有了用户openid，却没用用户基本信息
 					if (userDetail && avatarUrl && nickName && (userDetail.photo === 'photo.png' || !userDetail.photo)) {
 						await userModal.update(
 							{
-								username: nickName,
-								photo: avatarUrl,
+								username: '',
+								photo: '',
 							},
 							{
 								where: {
@@ -55,8 +55,8 @@ module.exports = {
 						);
 						userDetail = {
 							wx_openid: openid,
-							username: nickName,
-							photo: avatarUrl,
+							username: '',
+							photo: '',
 						};
 					}
 					let userResult = await userModal.findOne({ where: { wx_openid: openid } });

@@ -30,13 +30,11 @@ module.exports = (sequelize) => {
     photo: {
       type: Sequelize.STRING(255),
       allowNull: true,
-      defaultValue: "photo.png",
       comment: "头像"
     },
     bg_url: {
       type: Sequelize.STRING(255),
       allowNull: true,
-      defaultValue: "bg.png",
       comment: "背景图片"
     },
     birthday: {
@@ -47,13 +45,11 @@ module.exports = (sequelize) => {
     sex: {
       type: Sequelize.INTEGER,
       allowNull: true,
-      defaultValue: 1,
       comment: "1- 男 2-女"
     },
     address: {
       type: Sequelize.STRING(255),
       allowNull: true,
-      defaultValue: "浙江省 杭州市 西湖区",
       comment: "地址"
     },
     school: {
@@ -107,6 +103,12 @@ module.exports = (sequelize) => {
       allowNull: true,
       defaultValue: "1",
       comment: "1-微信用户 2-qq用户"
+    },
+    identity: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: 1,
+      comment: "1-学生 2-学校老师 3-机构老师"
     },
     create_time: {
       type: Sequelize.DATE,

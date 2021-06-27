@@ -20,12 +20,12 @@ goodsRecordModal.belongsTo(contentModal, { foreignKey: 'content_id', targetKey: 
 
 module.exports = {
 	// 根据user_id获取当前用户信息
-	getUserByUserId: async (req, res) => {
+	getUserDetailByUserId: async (req, res) => {
 		try {
 			const { user_id } = req.query;
 			const userDetail = await userModal.findOne({ where: { id: user_id, disable: 1, is_delete: 1 } });
 			if (!userDetail) {
-				return res.send(resultMessage.error('请完善信息'));
+				return res.send(resultMessage.success({}));
 			}
 			const result = responseUtil.renderFieldsObj(userDetail, [
 				'id',
@@ -45,6 +45,7 @@ module.exports = {
 				'school',
 				'level',
 				'integral',
+				'identity',
 			]);
 			if (result.birthday) result.birthday = moment(result.birthday).format('YYYY-MM-DD');
 			result.photo = userUtil.getPhotoUrl(result.photo);
@@ -195,6 +196,18 @@ module.exports = {
 				item.photo = userUtil.getPhotoUrl(item.photo);
 			});
 			res.send(resultMessage.success(result));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
+		}
+	},
+
+	// 更新用户身份
+	updateIdentity: async (req, res) => {
+		try {
+			const { user_id, identity } = req.body;
+			await userModal.update({ identity }, { where: { id: user_id } });
+			res.send(resultMessage.success('success'));
 		} catch (error) {
 			console.log(error);
 			res.send(resultMessage.error());

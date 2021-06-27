@@ -40,7 +40,7 @@ module.exports = {
 					},
 				],
 				attributes: ['id', 'self_school', 'type'],
-				order: [['create_time', 'DESC']],
+				order: [['sort', 'ASC']],
 				limit: Number(INIT_CIRCLE_NUM),
 				offset: Number(0),
 			});
@@ -112,7 +112,10 @@ module.exports = {
 			});
 			// 存在的话，将其设为普通关注圈子
 			if (self_scool) {
-				await userAttentionCircleModal.update({ self_school: 2 }, { where: { user_id, circle_id: self_scool.circle_id } });
+				await userAttentionCircleModal.update(
+					{ self_school: 2, type: 2, sort: 1 },
+					{ where: { user_id, circle_id: self_scool.circle_id } },
+				);
 			}
 			await userAttentionCircleModal.create({
 				user_id,
@@ -141,7 +144,14 @@ module.exports = {
 			// 保存现有的关注
 			circles.forEach((item) => {
 				const self_school = item.self_school === 1 ? 1 : 2;
-				newAttentions.push({ user_id, circle_id: item.id, self_school, create_time: moment().format(timeformat) });
+				newAttentions.push({
+					user_id,
+					circle_id: item.id,
+					type: item.type,
+					sort: item.sort,
+					self_school,
+					create_time: moment().format(timeformat),
+				});
 			});
 			if (newAttentions.length !== 0) {
 				await userAttentionCircleModal.bulkCreate(newAttentions);
@@ -532,6 +542,18 @@ module.exports = {
 			await userAttentionCircleModal.destroy({ where: { user_id } });
 			await userAttentionCircleModal.bulkCreate(newCircles);
 			res.send(resultMessage.success('success'));
+		} catch (error) {
+			console.log(error);
+			res.send(resultMessage.error());
+		}
+	},
+
+	// 获取学校圈子
+	getSchoolCircles: async (req, res) => {
+		try {
+			const circles = await circleModal.findAll({ where: { type: 1, is_delete: 1 }, attributes: ['name'] });
+			const result = responseUtil.renderFieldsAll(circles, ['name']);
+			res.send(resultMessage.success(result));
 		} catch (error) {
 			console.log(error);
 			res.send(resultMessage.error());

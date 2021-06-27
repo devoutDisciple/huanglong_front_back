@@ -78,4 +78,9 @@ router.post('/saveMyShowCircle', (req, res) => {
 	circleService.saveMyShowCircle(req, res);
 });
 
+// 获取学校圈子的名称
+router.get('/schoolCircles', (req, res) => {
+	circleService.getSchoolCircles(req, res);
+});
+
 module.exports = router;
